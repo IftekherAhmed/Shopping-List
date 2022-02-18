@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="icon" href="close.png" type="image/gif" sizes="16x16">
+    <title>Item List</title>
+    <style>
+        .table .items {
+            background: aliceblue;
+        }
+        
+        .table .advanced {
+            background: white;
+        }
+        
+        .table .total {
+            background: antiquewhite;
+        }
+        
+        .table .due {
+            background: lightgrey;
+        }
+        
+        .table .commission {
+            background: cadetblue;
+            color: #fff !important;
+        }
+        
+        .table .w-commission {
+            background: turquoise;
+        }
+        
+        .table .action {
+            text-align: center;
+        }
+        
+        .table .action img {
+            width: 20px;
+        }
+    </style>
+</head>
+
+<body>
+	<!-- Print -->
+	<div class="text-end">
+		<a href="#" class="btn btn-sm bg-white text-dark border border-secondary m-3" id="print_btn">
+			<img src="print.png" width="20">
+			Print
+		</a>
+	</div>
+	<!-- /Print -->
+	
+    <!-- Calculator -->
+    <div class="container-fluid overflow-hidden" id="print_con">
+        <div class="row g-5 py-2 px-3">
+            <!-- Left Side -->
+            <div class="col-md-6">
+                <!-- Important Items-->
+                <div class="card">
+                    <div class="card-header">Shopping Item</div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped" border="1" style="border-collapse: collapse;">
+                            <tr>
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Possible Price</th>
+                                <th>Action</th>
+                            </tr>
+                            <tr>
+                                <input type="hidden" name="i_cost[]" value="200">
+                                <td>03</td>
+                                <td>Glue Gun</td>
+                                <td>200/=</td>
+                                <td class="action">
+                                    <a href="#" class="removeRow">
+                                        <img src="close.png" alt="...">
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!-- /Important Items-->
+            </div>
+            <!-- /Left Side -->
+			<br>
+            <!-- Right Side -->
+            <div class="col-md-6">
+				<!-- Total Calculation -->
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">Total</div>
+						<div class="card-body">
+							<table class="table table-bordered table-striped" border="1" style="border-collapse: collapse;">
+								<tr class="items">
+									<td>Total items</td>
+									<td></td>
+									<td id="total_items"></td>
+								</tr>
+								<tr class="total">
+									<td>Total Cost</td>
+									<td></td>
+									<td id="t_cost"></td>
+								</tr>
+								<tr class="advanced">
+									<td>Advanced</td>
+									<td></td>
+									<td><input type="text" id="advanced_cost" class="form-control" placeholder="0" value="0"></td>
+								</tr>
+								<tr class="due">
+									<td>Due Cost</td>
+									<td></td>
+									<td id="d_cost"></td>
+								</tr>
+								<tr class="commission">
+									<td>Total Commission (Including Advanced)</td>
+									<td></td>
+									<td id="f_percent"></td>
+								</tr>
+								<tr class="w-commission">
+									<td>With 20% commission (Excluding Advanced)</td>
+									<td></td>
+									<td id="tc_wc"></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- /Total Calculation -->
+
+				<!-- Logo -->
+				<div class="col-md-12">
+					<div class="text-end">
+						<img src="logo.png" class="" width="300" alt="...">
+					</div>
+				</div>
+				<!-- /Logo -->
+            </div>
+            <!-- /Right Side -->
+        </div>
+    </div>
+    <!-- /Calculator -->
+
+    <script src="jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+			//Print
+			function printData() {
+			   var divToPrint=document.getElementById("print_con");
+			   newWin= window.open("");
+			   newWin.document.write(divToPrint.outerHTML);
+			   newWin.print();
+			   newWin.close();
+			}
+
+			//Print Button
+			$("#print_btn").on('click',function(){
+				printData();
+			})
+			
+			//Calculation
+            function calculation() {
+                // Important items List
+                // Important items cost's array variable
+                var i_cost = $("input[name='i_cost[]']").map(function() {
+                    return $(this).val();
+                }).get();
+
+                // Important items total cost variable
+                var i_total = 0;
+                for (var i = 0; i < i_cost.length; i++) {
+                    i_total += i_cost[i] << 0;
+                    $("#i_cost_total").html(i_total + "/=");
+                }
+
+                // Total items
+                var total_items = i_cost.length;
+                $("#total_items").html(total_items);
+
+                // Total Cost 
+                var t_cost = i_total;
+                $("#t_cost").html(t_cost + "/=");
+
+
+                // Due Cost 
+                var d_cost = i_total;
+                $("#advanced_cost").keyup(function() {
+                    //Total cost without advanced
+                    var tc_w_adv = d_cost - $(this).val();
+                    // Due Cost 
+                    $("#d_cost").html(tc_w_adv + "/=");
+                }).keyup();
+
+                // Total Percent 
+                var f_percent = (t_cost / 100) * 20;
+                $("#f_percent").html(f_percent.toFixed(2) + "/=");
+
+                // Total without commission
+                var tc_wc = t_cost - f_percent;
+
+
+                // Total cost without Advanced and Commission
+                $("#advanced_cost").keyup(function() {
+                    //Total cost without advanced
+                    var tc_wa = tc_wc - $(this).val();
+                    // Total without Advanced
+                    $("#tc_wc").html(tc_wa.toFixed(2) + "/=");
+                }).keyup();
+            }
+            calculation();
+			
+
+            // Delete table row
+            $(".removeRow").click(function() {
+                var select_parent = $(this).parent().parent();
+                var select_child = select_parent.children('input').val();
+                var remeove_row = select_parent.remove();
+                var minus_cost = select_child;
+                calculation();
+            });
+
+        });
+    </script>
+</body>
+
+</html>
